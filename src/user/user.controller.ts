@@ -17,7 +17,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UserSubjectResponseDto } from './dto/user-subject-response.dto';
 import { PaginationQueryDto } from '../common/pagination/pagination.dto';
-import { Query ,UseInterceptors} from '@nestjs/common';
+import { Query, UseInterceptors } from '@nestjs/common';
 import { PaginateInterceptor } from '../common/pagination/paginate.interceptor';
 import { Paginated } from 'src/common/pagination/paginated.interface';
 import { Serialize } from 'src/common/decorators/serialize.decorator';
@@ -66,23 +66,5 @@ export class UserController {
     @Serialize(UserResponseDto)
     async findById(@Param('id', ParseIntPipe) id: number) {
         return await this.userService.findById(id);
-    }
-
-    @Get(':id/subjects')
-    @ApiOperation({
-        summary: 'Get subjects for a user',
-        description: 'Retrieves all subjects assigned to a specific user',
-    })
-    @ApiResponse({
-        status: 200,
-        description: 'User subjects retrieved successfully',
-        type: [UserSubjectResponseDto],
-    })
-    @ApiResponse({
-        status: 404,
-        description: 'User not found or no subjects found',
-    })
-    async findSubjects(@Param('id', ParseIntPipe) id: number) {
-        return await this.userService.findSubjectsByUserId(id);
     }
 }

@@ -49,13 +49,4 @@ export class UserService {
         if (!user) throw new NotFoundException('User not found');
         return user;
     }
-
-    async findSubjectsByUserId(userId: number) {
-        const subjects = await this.prisma.userSubject.findMany({
-            where: { userId },
-            include: { subject: true },
-        });
-        if (!subjects || subjects.length === 0) throw new NotFoundException('No subjects found for user');
-        return subjects;
-    }
 }
