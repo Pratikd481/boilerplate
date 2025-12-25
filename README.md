@@ -1,98 +1,144 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Boilerplate — Run with Docker Compose
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This document explains how to start the database using Docker Compose, run Prisma migrations, seed the database and run the NestJS app.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+> Tested workflow (development): start Postgres + pgAdmin with Docker Compose, run migrations & seed from the host (uses `dotenv -e .env.development`) and start the app in local dev mode.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
 
-## Project setup
+- Docker & Docker Compose installed
+- Node.js (for running `npm` scripts) — required when running migrations & seeding from host
+- `git` to clone the repo
 
-```bash
-$ npm install
+Files used:
+- `docker/docker-compose.yml` (provides `postgres` + `pgadmin` services)
+- `package.json` scripts:
+  - `npm run migrate:dev` → merges Prisma models and runs `prisma migrate dev` using `.env.development`
+  - `npm run prisma:seed:dev` → runs the TypeScript seed script using `.env.development`
+
+The repository contains `.env.development` which configures `DATABASE_URL` for local development:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app_dev
 ```
 
-## Compile and run the project
+This configuration expects Postgres to be reachable at `localhost:5432` (the default mapping used by the included `docker-compose.yml`).
+
+---
+
+## 1) Start database (Postgres + pgAdmin)
+
+From project root:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker compose up -d postgres pgadmin
 ```
 
-## Run tests
+Check logs:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker compose logs -f postgres
 ```
 
-## Deployment
+Open pgAdmin at: http://localhost:5050 (default user: `admin@example.com`, password `admin` — see `docker/docker-compose.yml`).
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 2) Run migrations and seed (recommended / simple) — from host
+
+This uses the npm scripts which load `.env.development` and run Prisma commands.
+
+Install dependencies (first time):
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm ci
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Run migrations (development):
 
-## Resources
+```bash
+npm run migrate:dev
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Run seed script (development):
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+npm run prisma:seed:dev
+```
 
-## Support
+After these commands, the database will be migrated and initial seed data inserted.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+## 3) Run the app (development)
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Start in watch/dev mode (run locally):
 
-## License
+```bash
+npm run start:dev
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+The API will be available at: http://localhost:3000
+Swagger UI (dev only): http://localhost:3000/docs
+
+---
+
+## Alternative: Run migrations & seed inside a container (one-off)
+
+If you prefer running migrations from inside a container (no Node on host), you can run a one-off Node container with the project mounted. Example (Linux/macOS):
+
+```bash
+# run migrations inside node container (attach current dir as /app)
+docker run --rm -v "$(pwd)":/app -w /app node:18 bash -lc "npm ci && npm run migrate:dev"
+
+# run seeding
+docker run --rm -v "$(pwd)":/app -w /app node:18 bash -lc "npm ci && npm run prisma:seed:dev"
+```
+
+Windows (PowerShell) equivalent:
+
+```powershell
+docker run --rm -v ${PWD}:/app -w /app node:18 bash -lc "npm ci && npm run migrate:dev"
+```
+
+Note: when running inside a container, `DATABASE_URL` should point to the Docker network hostname `postgres` instead of `localhost`. Example environment override:
+
+```bash
+docker run --rm -e DATABASE_URL="postgresql://postgres:postgres@postgres:5432/app_dev" -v "$(pwd)":/app -w /app node:18 bash -lc "npm ci && npm run migrate:dev"
+```
+
+---
+
+## Optional: Run the API as a Docker service
+
+`docker/docker-compose.yml` contains a commented-out `api` service. To run the API in Docker:
+
+1. Uncomment or add an `api` service in `docker-compose.yml` that builds the repo and sets `env_file: ../.env.development` and depends on `postgres`.
+2. Build & start:
+
+```bash
+docker compose up -d --build api
+```
+
+3. The container will expose the configured port (the compose file example maps `3000:3000`).
+
+Important: when running the API as a Docker service, ensure `DATABASE_URL` points to `postgres://...@postgres:5432/...` (service name as host).
+
+---
+
+## Troubleshooting
+
+- `prisma migrate dev` fails with connection errors: ensure `postgres` container is running (`docker compose ps`) and `.env.development` points to the correct host/port.
+- If you run migrations from inside a container, set `DATABASE_URL` to use the Docker service hostname `postgres`.
+- If you have existing migrations and Prisma reports conflicts, inspect `prisma/migrations` and resolve as needed.
+
+---
+
+If you'd like, I can:
+
+- Add a ready-to-use `api` service to `docker/docker-compose.yml` and an accompanying `Dockerfile` example (so you can run the entire stack with one `docker compose up -d`), or
+- Add GitHub Actions workflow to run migrations on deploy.
+
+Let me know which you'd prefer and I will add it to the repository.
