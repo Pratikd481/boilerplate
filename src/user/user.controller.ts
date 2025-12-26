@@ -14,12 +14,10 @@ import {
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { UserResponseDto } from './dto/user-response.dto';
-import { UserSubjectResponseDto } from './dto/user-subject-response.dto';
+import { PaginatedUserResponseDto, UserResponseDto } from './dto/user-response.dto';
 import { PaginationQueryDto } from '../common/pagination/pagination.dto';
 import { Query, UseInterceptors } from '@nestjs/common';
 import { PaginateInterceptor } from '../common/pagination/paginate.interceptor';
-import { Paginated } from 'src/common/pagination/paginated.interface';
 import { Serialize } from 'src/common/decorators/serialize.decorator';
 
 
@@ -41,11 +39,11 @@ export class UserController {
     @ApiResponse({
         status: 200,
         description: 'Users retrieved successfully',
-        type: [UserResponseDto],
+        type: PaginatedUserResponseDto,
     })
     @UseInterceptors(PaginateInterceptor)
     @Serialize(UserResponseDto)
-    async findAll(@Query() query: PaginationQueryDto): Promise<Paginated<UserResponseDto>> {
+    async findAll(@Query() query: PaginationQueryDto): Promise<PaginatedUserResponseDto> {
         return await this.userService.findAll(query.page, query.limit);
     }
 

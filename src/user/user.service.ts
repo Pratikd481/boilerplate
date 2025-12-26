@@ -18,13 +18,6 @@ export class UserService {
     constructor(private prisma: PrismaService, private paginationService: PaginationService) { }
 
     async findAll(page?: number, limit?: number): Promise<Paginated<any>> {
-        // If page/limit not provided return a paginated shape with all items (consistent return type)
-        if (!page || !limit) {
-            const items = await this.prisma.user.findMany({ select: this.userSelect });
-            const total = items.length;
-            const meta = { page: 1, limit: items.length, total, totalPages: total > 0 ? 1 : 0 };
-            return { items, meta };
-        }
 
         const paginated = await this.paginationService.paginate<any>(
             this.prisma.user,

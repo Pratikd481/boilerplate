@@ -1,13 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Expose, Exclude } from 'class-transformer';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { Expose, Exclude, Type } from 'class-transformer';
+import { PaginatedResultDto, PaginationMetaDto } from 'src/common/pagination/pagination.dto';
 
 @Exclude()
 export class UserResponseDto {
   @Exclude()
-  @ApiProperty({
-    example: 1,
-    description: 'User database ID',
-  })
   id: number;
 
   @Expose()
@@ -52,4 +49,11 @@ export class UserResponseDto {
     description: 'User last update timestamp',
   })
   updatedAt: Date;
+}
+
+
+export class PaginatedUserResponseDto extends PaginatedResultDto<UserResponseDto> {
+  @ApiProperty({ type: [UserResponseDto] })
+  @Type(() => UserResponseDto)
+  declare items: UserResponseDto[];
 }
